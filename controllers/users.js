@@ -9,16 +9,16 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    .then((user) => {
-      if (!userId) {
-        return res
-          .status(404)
-          .send({ message: "Пользователь с указанным _id не найден." });
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      if (err.statusCode === 404) {
+        res.status(err.statusCode).send({ message: err.message });
+      } else if (err.kind === "ObjectId") {
+        res.status(400).send({ message: "Неверный формат id" });
       } else {
-        res.send({ data: user });
+        res.status(500).send({ message: "Error!" });
       }
-    })
-    .catch((err) => res.status(500).send({ message: err.message }));
+    });
 };
 
 module.exports.createUser = (req, res) => {
