@@ -10,7 +10,9 @@ module.exports.getCards = (req, res) => {
   Card.find({})
     .then((card) => res.send({ data: card }))
     .catch(() =>
-      res.status(INTERNAL_SERVER_ERROR).send({ message: "Произошла ошибка" })
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" })
     );
 };
 
@@ -99,6 +101,6 @@ module.exports.dislikeCard = (req, res) => {
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "Произошла ошибка" });
+        .send({ message: "На сервере произошла ошибка" });
     });
 };

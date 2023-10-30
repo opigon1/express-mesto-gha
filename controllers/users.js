@@ -10,7 +10,9 @@ module.exports.getUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
     .catch(() =>
-      res.status(INTERNAL_SERVER_ERROR).send({ message: "Произошла ошибка" })
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" })
     );
 };
 
@@ -72,7 +74,9 @@ module.exports.updateUser = (req, res) => {
           message: "Переданы некорректные данные при обновлении пользователя",
         });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: "Произошла ошибка" });
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -99,7 +103,9 @@ module.exports.updateUserAvatar = (req, res) => {
           message: "Переданы некорректные данные при обновлении аватара",
         });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: "Произошла ошибка" });
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
