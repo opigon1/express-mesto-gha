@@ -47,7 +47,9 @@ module.exports.createCard = (req, res) => {
           message: "Переданы некорректные данные при создании карточки",
         });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -75,7 +77,9 @@ module.exports.likeCard = (req, res) =>
           message: " Переданы некорректные данные для постановки/снятии лайка.",
         });
       } else {
-        return res.status(INTERNAL_SERVER_ERROR).send({ message: "Error!" });
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 

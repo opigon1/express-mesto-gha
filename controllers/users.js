@@ -32,7 +32,7 @@ module.exports.getUserById = (req, res) => {
       } else {
         res
           .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "Ошибка на сервере" });
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
@@ -47,7 +47,9 @@ module.exports.createUser = (req, res) => {
           message: "Переданы некорректные данные при создании пользователя",
         });
       } else {
-        res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
     });
 };
