@@ -24,10 +24,8 @@ app.listen(PORT, () => {
 app.post("/signin", login);
 app.post("/signup", createUser);
 
-app.use(auth);
-
-app.use("/users", require("./routes/users"));
-app.use("/cards", require("./routes/cards"));
+app.use("/users", auth, require("./routes/users"));
+app.use("/cards", auth, require("./routes/cards"));
 
 app.use("*", (req, res) => {
   throw new NOT_FOUND("Страница не найдена");
