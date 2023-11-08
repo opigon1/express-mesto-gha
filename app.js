@@ -1,5 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { login, createUser } = require("./controllers/users");
+const { auth } = require("./middlewares/auth");
+const NOT_FOUND = require("./errors/NOT_FOUND");
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -18,19 +21,25 @@ app.listen(PORT, () => {
   console.log(`${PORT}`);
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "653a32d300e6835222a87622",
-  };
+app.post("/signin", login);
+app.post("/signup", createUser);
 
-  next();
-});
+app.use(auth);
 
 app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
+
 app.use("*", (req, res) => {
-  res.status(404).send({ message: "Страница не найдена" });
+  throw new NOT_FOUND("Страница не найдена");
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode).send({
+    message: statusCode === 500 ? "На сервере произошла ошибка" : message,
+  });
+});
