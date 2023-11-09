@@ -41,39 +41,72 @@ module.exports.getUserById = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    throw new BAD_REQUEST("Не указан Email или пароль");
-  }
+  const { name, about, avatar, email, password } = req.body;
   bcrypt
-    .hash(req.body.password, 10)
-    .then((hash) =>
-      User.create({
-        email: req.body.email,
-        password: hash,
-        name: req.body.name,
-        about: req.body.about,
-        avatar: req.body.avatar,
+    .hash(password, 10)
+    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
+
+    .then((user) =>
+      res.status(200).send({
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
       })
-        .then((user) => {
-          res.status(200).send({
-            _id: user._id,
-            name: user.name,
-            about: user.about,
-            avatar: user.avatar,
-            email: user.email,
-          });
-        })
-        .catch((err) => {
-          if (err.name === "ValidationError") {
-            throw new BAD_REQUEST("Ошибка при создании пользователя");
-          } else next(err);
-        })
     )
     .catch((err) => {
-      next(err);
+      if (err.code == 11000) {
+        next(new CONFLICT("Такой пользователь уже существует"));
+      }
+      if (err.name === "ValidationError") {
+        next(
+          new BAD_REQUEST(
+            "Переданы некорректные данные при создании пользователя"
+          )
+        );
+      } else {
+        next(err);
+      }
     });
 };
+
+// module.exports.createUser = (req, res, next) => {
+//   // signup
+//   const { name, about, avatar, email, password } = req.body;
+//   User.findOne({ email }).then((user) => {
+//     if (user) {
+//       next(new CONFLICT("Подльзователь с такой почтой уже существует!"));
+//     }
+//     bcrypt
+//       .hash(password, 10) // хешируем пароль
+//       .then((hash) =>
+//         User.create({
+//           name,
+//           about,
+//           avatar,
+//           email,
+//           password: hash,
+//         })
+//       )
+//       .then((usr) =>
+//         res.status(201).send({
+//           _id: usr._id,
+//           email: usr.email,
+//         })
+//       )
+//       .catch((error) => {
+//         if (error.name === "ValidationError") {
+//           next(
+//             new BAD_REQUEST(
+//               "Поле email и password должны быть обязательно заполненны"
+//             )
+//           );
+//         }
+//         next(error);
+//       });
+//   });
+// };
 
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;

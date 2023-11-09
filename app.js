@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { celebrate, Joi } = require("celebrate");
+const { celebrate, Joi, errors } = require("celebrate");
 const { login, createUser } = require("./controllers/users");
 const { auth } = require("./middlewares/auth");
 const NOT_FOUND = require("./errors/NOT_FOUND");
@@ -47,9 +47,9 @@ app.post(
   }),
   createUser
 );
-
-app.use("/users", auth, require("./routes/users"));
-app.use("/cards", auth, require("./routes/cards"));
+app.use(auth);
+app.use("/users", require("./routes/users"));
+app.use("/cards", require("./routes/cards"));
 
 app.use("*", (req, res) => {
   throw new NOT_FOUND("Страница не найдена");
@@ -58,6 +58,7 @@ app.use("*", (req, res) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 

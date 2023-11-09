@@ -1,43 +1,43 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
+const { isEmail, isURL } = require("validator");
 const bcrypt = require("bcrypt");
 const UNAUTHORIZED = require("../errors/UNAUTHORIZED");
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    minlength: 2,
-    maxlength: 30,
-    required: true,
     default: "Жак-Ив Кусто",
+    minlength: [2, "Username must be at least 2 characters."],
+    maxlength: [30, "Username must be less than 20 characters."],
   },
   about: {
     type: String,
-    minlength: 2,
-    maxlength: 30,
-    required: true,
     default: "Исследователь",
+    minlength: [2, "Username must be at least 2 characters."],
+    maxlength: [30, "Username must be less than 20 characters."],
   },
   avatar: {
     type: String,
-    required: true,
     default:
       "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
+    validate: {
+      validator: (v) => isURL(v),
+      message: "Неправильный формат адресса фотографии",
+    },
   },
   email: {
     type: String,
-    required: true,
-    validate: {
-      validator: function (v) {
-        return validator.isEmail(v);
-      },
-      message: "Не валидный email",
-    },
     unique: true,
+    required: [true, "Your username cannot be blank."],
+    validate: {
+      validator: (v) => isEmail(v),
+      message: "Неправильный формат почты",
+    },
   },
   password: {
     type: String,
-    required: true,
+    minlength: [8, "Password must be at least 8 characters."],
+    required: [true, "Your password cannot be blank."],
     select: false,
   },
 });
