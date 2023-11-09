@@ -47,7 +47,7 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => User.create({ name, about, avatar, email, password: hash }))
 
     .then((user) =>
-      res.status(200).send({
+      res.status(201).send({
         _id: user._id,
         email: user.email,
         name: user.name,
@@ -70,43 +70,6 @@ module.exports.createUser = (req, res, next) => {
       }
     });
 };
-
-// module.exports.createUser = (req, res, next) => {
-//   // signup
-//   const { name, about, avatar, email, password } = req.body;
-//   User.findOne({ email }).then((user) => {
-//     if (user) {
-//       next(new CONFLICT("Подльзователь с такой почтой уже существует!"));
-//     }
-//     bcrypt
-//       .hash(password, 10) // хешируем пароль
-//       .then((hash) =>
-//         User.create({
-//           name,
-//           about,
-//           avatar,
-//           email,
-//           password: hash,
-//         })
-//       )
-//       .then((usr) =>
-//         res.status(201).send({
-//           _id: usr._id,
-//           email: usr.email,
-//         })
-//       )
-//       .catch((error) => {
-//         if (error.name === "ValidationError") {
-//           next(
-//             new BAD_REQUEST(
-//               "Поле email и password должны быть обязательно заполненны"
-//             )
-//           );
-//         }
-//         next(error);
-//       });
-//   });
-// };
 
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;

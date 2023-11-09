@@ -7,14 +7,14 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     default: "Жак-Ив Кусто",
-    minlength: [2, "Username must be at least 2 characters."],
-    maxlength: [30, "Username must be less than 20 characters."],
+    minlength: [2, "Минимуи 2 знака."],
+    maxlength: [30, "Максимум 20 знаков."],
   },
   about: {
     type: String,
     default: "Исследователь",
-    minlength: [2, "Username must be at least 2 characters."],
-    maxlength: [30, "Username must be less than 20 characters."],
+    minlength: [2, "Минимуи 2 знака."],
+    maxlength: [30, "Максимум 20 знаков."],
   },
   avatar: {
     type: String,
@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    required: [true, "Your username cannot be blank."],
+    required: [true, "Обязательно."],
     validate: {
       validator: (v) => isEmail(v),
       message: "Неправильный формат почты",
@@ -36,8 +36,8 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minlength: [8, "Password must be at least 8 characters."],
-    required: [true, "Your password cannot be blank."],
+    minlength: [8, "Минимуи 8 знаков."],
+    required: [true, "Обязательно."],
     select: false,
   },
 });
