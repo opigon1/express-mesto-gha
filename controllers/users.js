@@ -4,6 +4,7 @@ const User = require("../models/user");
 const BAD_REQUEST = require("../errors/BAD_REQUEST");
 const NOT_FOUND = require("../errors/NOT_FOUND");
 const CONFLICT = require("../errors/CONFLICT");
+const UNAUTHORIZED = require("../errors/UNAUTHORIZED");
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -122,24 +123,35 @@ module.exports.updateUserAvatar = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
+  // signin
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
+  User.findOne({ email })
+    .select("+password")
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, "super-strong-secret", {
-        expiresIn: "7d",
+      bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          next(new UNAUTHORIZED("Передан неккоректный пароль"));
+        }
+        const token = jwt.sign({ _id: user._id }, "test", { expiresIn: "7d" });
+        res
+          .cookie("jwt", token, {
+            httpOnly: true,
+            sameSite: true,
+            maxAge: 3600000 * 24 * 7,
+          })
+          .status(201)
+          .send({
+            message: "Аутентификация прошла успешно",
+          });
       });
-
-      res
-        .cookie("jwt", token, {
-          maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
-          sameSite: true,
-        })
-        .status(200)
-        .send({ message: "Авторизация прошла успешно!" });
     })
     .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(new BAD_REQUEST("Поле email или password не должны быть пустыми"));
+      } else {
+        next(new UNAUTHORIZED("Передан неккоректный email"));
+      }
       next(err);
     });
 };
