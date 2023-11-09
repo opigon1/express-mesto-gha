@@ -14,9 +14,29 @@ module.exports.getUsers = (req, res, next) => {
     });
 };
 
+// module.exports.getUserinfo = (req, res) => {
+//   debugger;
+//   User.findById(req.user._id)
+//     .orFail(() => {
+//       const error = new Error("Пользователь по заданному id отсутствует");
+//       error.statusCode = 404;
+//       throw error;
+//     })
+//     .then((user) => res.send({ data: user }))
+//     .catch((err) => {
+//       if (err.statusCode === 404) {
+//         res.status(err.statusCode).send({ message: err.message });
+//       } else if (err.kind === "ObjectId") {
+//         res.status(400).send({ message: "Неверный формат id" });
+//       } else {
+//         res.status(500).send({ message: "Error!" });
+//       }
+//     });
+// };
+
 module.exports.getUserinfo = (req, res, next) => {
   User.findById(req.user._id)
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(200).send({ data: user }))
     .catch(() => {
       next(err);
     });
@@ -140,7 +160,7 @@ module.exports.login = (req, res, next) => {
             sameSite: true,
             maxAge: 3600000 * 24 * 7,
           })
-          .status(201)
+          .status(200)
           .send({
             message: "Аутентификация прошла успешно",
           });

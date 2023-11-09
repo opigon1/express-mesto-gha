@@ -42,22 +42,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email })
-    .select("+password")
-    .then((user) => {
-      if (!user) {
-        throw new UNAUTHORIZED("Не правильные email или password");
-      }
-
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (!matched) {
-          throw new UNAUTHORIZED("Не правильные email или password");
-        }
-
-        return user;
-      });
-    });
-};
-
 module.exports = mongoose.model("user", userSchema);
