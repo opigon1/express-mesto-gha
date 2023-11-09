@@ -75,44 +75,6 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-// module.exports.createUser = (req, res, next) => {
-//   const { name, about, avatar, email, password } = req.body;
-//   bcrypt
-//     .hash(password, 10)
-//     .then((hash) => {
-//       User.create({ name, about, avatar, email, password: hash }).then(
-//         (user) => {
-//           res
-//             .status(200)
-//             .send({
-//               _id: user._id,
-//               email: user.email,
-//               name: user.name,
-//               about: user.about,
-//               avatar: user.avatar,
-//             })
-//             .catch((err) => {
-//               if (err.name === "ValidationError") {
-//                 throw new BAD_REQUEST("Ошибка при создании пользователя");
-//               } else next(err);
-//             });
-//         }
-//       );
-// if (err.code == 11000) {
-//   throw new CONFLICT("Такой пользователь уже существует");
-// }
-//     })
-//     .catch((err) => {
-//       if (err.name === "ValidationError") {
-//         throw new BAD_REQUEST(
-//           "Переданы некорректные данные при создании пользователя"
-//         );
-//       } else {
-//         next(err);
-//       }
-//     });
-// };
-
 module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findOneAndUpdate(

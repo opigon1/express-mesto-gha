@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { celebrate, Joi } = require("celebrate");
 const { login, createUser } = require("./controllers/users");
 const { auth } = require("./middlewares/auth");
 const NOT_FOUND = require("./errors/NOT_FOUND");
@@ -21,8 +22,31 @@ app.listen(PORT, () => {
   console.log(`${PORT}`);
 });
 
-app.post("/signin", login);
-app.post("/signup", createUser);
+app.post(
+  "/signin",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+    }),
+  }),
+  login
+);
+app.post(
+  "/signup",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+      name: Joi.string().required().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string().regex(
+        /^(https?:\/\/)?([\da-z\\.-]+)\.([a-z\\.]{2,6})([\\/\w \\.-]*)*\/?$/
+      ),
+    }),
+  }),
+  createUser
+);
 
 app.use("/users", auth, require("./routes/users"));
 app.use("/cards", auth, require("./routes/cards"));
