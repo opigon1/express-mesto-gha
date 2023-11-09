@@ -55,15 +55,17 @@ module.exports.likeCard = (req, res, next) =>
   )
     .then((card) => {
       if (!card) {
-        throw new NOT_FOUND("Передан несуществующий _id карточки.");
+        return next(new NOT_FOUND("Передан несуществующий _id карточки."));
       } else {
         res.status(200).send({ data: card });
       }
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        throw new BAD_REQUEST(
-          "Переданы некорректные данные для постановки/снятии лайка."
+        return next(
+          new BAD_REQUEST(
+            "Переданы некорректные данные для постановки/снятии лайка."
+          )
         );
       } else {
         next(err);
@@ -78,14 +80,16 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new NOT_FOUND("Передан несуществующий _id карточки.");
+        return next(new NOT_FOUND("Передан несуществующий _id карточки."));
       }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        throw new BAD_REQUEST(
-          "Переданы некорректные данные для постановки/снятии лайка."
+        return next(
+          new BAD_REQUEST(
+            "Переданы некорректные данные для постановки/снятии лайка."
+          )
         );
       } else {
         next(err);
