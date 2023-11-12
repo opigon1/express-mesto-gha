@@ -14,7 +14,7 @@ module.exports.deleteCardById = (req, res, next) => {
   Card.findById(cardId)
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
-        throw new UNAUTHORIZED("На сервере произошла ошибка");
+        next(new UNAUTHORIZED("На сервере произошла ошибка"));
       } else {
         Card.findByIdAndDelete(req.params.cardId).then(() => {
           res.status(200).send(card);
@@ -23,8 +23,8 @@ module.exports.deleteCardById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        throw new BAD_REQUEST(
-          "Переданы некорректные данные при удалении карточки."
+        next(
+          new BAD_REQUEST("Переданы некорректные данные при удалении карточки.")
         );
       } else {
         next(err);
