@@ -2,6 +2,7 @@ const Card = require("../models/card");
 const UNAUTHORIZED = require("../errors/UNAUTHORIZED");
 const BAD_REQUEST = require("../errors/BAD_REQUEST");
 const NOT_FOUND = require("../errors/NOT_FOUND");
+const FORBIDDEN = require("../errors/FORBIDDEN_ERROR");
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -13,10 +14,14 @@ module.exports.deleteCardById = (req, res, next) => {
   const { cardId } = req.params;
   Card.findById(cardId)
     .then((card) => {
+      if (!card) {
+        next(new NOT_FOUND("Карточка не найдена"));
+      }
+
       if (card.owner.toString() !== req.user._id) {
-        next(new UNAUTHORIZED("На сервере произошла ошибка"));
+        next(new FORBIDDEN("Нет доступа"));
       } else {
-        Card.findByIdAndDelete(req.params.cardId).then(() => {
+        Card.findByIdAndDelete(cardId).then(() => {
           res.status(200).send(card);
         });
       }
