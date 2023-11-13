@@ -1,4 +1,3 @@
-const { JWT_SECRET } = process.env;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
@@ -137,7 +136,7 @@ module.exports.login = (req, res, next) => {
         if (!matched) {
           return next(new UNAUTHORIZED("Передан неккоректный пароль"));
         }
-        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        const token = jwt.sign({ _id: user._id }, "JWT_SECRET", {
           expiresIn: "7d",
         });
         res
