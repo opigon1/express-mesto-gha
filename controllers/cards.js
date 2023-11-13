@@ -1,8 +1,8 @@
 const Card = require("../models/card");
-const UNAUTHORIZED = require("../errors/UNAUTHORIZED");
-const BAD_REQUEST = require("../errors/BAD_REQUEST");
-const NOT_FOUND = require("../errors/NOT_FOUND");
-const FORBIDDEN = require("../errors/FORBIDDEN_ERROR");
+const UNAUTHORIZED = require("../utils/errors/UNAUTHORIZED");
+const BAD_REQUEST = require("../utils/errors/BAD_REQUEST");
+const NOT_FOUND = require("../utils/errors/NOT_FOUND");
+const FORBIDDEN = require("../utils/errors/FORBIDDEN_ERROR");
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -15,11 +15,11 @@ module.exports.deleteCardById = (req, res, next) => {
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        next(new NOT_FOUND("Карточка не найдена"));
+        return next(new NOT_FOUND("Карточка не найдена"));
       }
 
       if (card.owner.toString() !== req.user._id) {
-        next(new FORBIDDEN("Нет доступа"));
+        return next(new FORBIDDEN("Нет доступа"));
       } else {
         Card.findByIdAndDelete(cardId).then(() => {
           res.status(200).send(card);
@@ -28,11 +28,11 @@ module.exports.deleteCardById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(
+        return next(
           new BAD_REQUEST("Переданы некорректные данные при удалении карточки.")
         );
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -41,12 +41,12 @@ module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BAD_REQUEST("Переданы некорректные данные"));
+        return next(new BAD_REQUEST("Переданы некорректные данные"));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -73,7 +73,7 @@ module.exports.likeCard = (req, res, next) =>
           )
         );
       } else {
-        next(err);
+        return next(err);
       }
     });
 
@@ -97,7 +97,7 @@ module.exports.dislikeCard = (req, res, next) => {
           )
         );
       } else {
-        next(err);
+        return next(err);
       }
     });
 };

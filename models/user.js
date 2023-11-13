@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 const { isEmail, isURL } = require("validator");
-const bcrypt = require("bcrypt");
-const UNAUTHORIZED = require("../errors/UNAUTHORIZED");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -36,7 +34,6 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minlength: [8, "Минимуи 8 знаков."],
     required: [true, "Обязательно."],
     select: false,
   },

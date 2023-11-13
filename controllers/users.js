@@ -1,44 +1,25 @@
+const { JWT_SECRET } = process.env;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
-const BAD_REQUEST = require("../errors/BAD_REQUEST");
-const NOT_FOUND = require("../errors/NOT_FOUND");
-const CONFLICT = require("../errors/CONFLICT");
-const UNAUTHORIZED = require("../errors/UNAUTHORIZED");
+const BAD_REQUEST = require("../utils/errors/BAD_REQUEST");
+const NOT_FOUND = require("../utils/errors/NOT_FOUND");
+const CONFLICT = require("../utils/errors/CONFLICT");
+const UNAUTHORIZED = require("../utils/errors/UNAUTHORIZED");
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      next(err);
+      return next(err);
     });
 };
-
-// module.exports.getUserinfo = (req, res) => {
-//   debugger;
-//   User.findById(req.user._id)
-//     .orFail(() => {
-//       const error = new Error("Пользователь по заданному id отсутствует");
-//       error.statusCode = 404;
-//       throw error;
-//     })
-//     .then((user) => res.send({ data: user }))
-//     .catch((err) => {
-//       if (err.statusCode === 404) {
-//         res.status(err.statusCode).send({ message: err.message });
-//       } else if (err.kind === "ObjectId") {
-//         res.status(400).send({ message: "Неверный формат id" });
-//       } else {
-//         res.status(500).send({ message: "Error!" });
-//       }
-//     });
-// };
 
 module.exports.getUserinfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => res.status(200).send({ data: user }))
-    .catch(() => {
-      next(err);
+    .catch((err) => {
+      return next(err);
     });
 };
 
@@ -47,16 +28,16 @@ module.exports.getUserById = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        throw new NOT_FOUND("Пользователь не найден");
+        return next(new NOT_FOUND("Пользователь не найден"));
       } else {
         res.status(200).send({ data: user });
       }
     })
     .catch((err) => {
       if (err.kind === "ObjectId") {
-        throw new BAD_REQUEST("Неверный формат ID.");
+        return next(new BAD_REQUEST("Неверный формат ID."));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -78,16 +59,16 @@ module.exports.createUser = (req, res, next) => {
     )
     .catch((err) => {
       if (err.code == 11000) {
-        next(new CONFLICT("Такой пользователь уже существует"));
+        return next(new CONFLICT("Такой пользователь уже существует"));
       }
       if (err.name === "ValidationError") {
-        next(
+        return next(
           new BAD_REQUEST(
             "Переданы некорректные данные при создании пользователя"
           )
         );
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -101,18 +82,20 @@ module.exports.updateUser = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NOT_FOUND("Пользователь с указанным _id не найден.");
+        return next(new NOT_FOUND("Пользователь с указанным _id не найден."));
       } else {
         res.status(200).send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        throw new BAD_REQUEST(
-          "Переданы некорректные данные при обновлении пользователя"
+        return next(
+          new BAD_REQUEST(
+            "Переданы некорректные данные при обновлении пользователя"
+          )
         );
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -126,18 +109,20 @@ module.exports.updateUserAvatar = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NOT_FOUND("Пользователь с указанным _id не найден.");
+        return next(new NOT_FOUND("Пользователь с указанным _id не найден."));
       } else {
         res.status(200).send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        throw new BAD_REQUEST(
-          "Переданы некорректные данные при обновлении аватара"
+        return next(
+          new BAD_REQUEST(
+            "Переданы некорректные данные при обновлении пользователя"
+          )
         );
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -151,9 +136,11 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          next(new UNAUTHORIZED("Передан неккоректный пароль"));
+          return next(new UNAUTHORIZED("Передан неккоректный пароль"));
         }
-        const token = jwt.sign({ _id: user._id }, "test", { expiresIn: "7d" });
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        });
         res
           .cookie("jwt", token, {
             httpOnly: true,
@@ -168,10 +155,12 @@ module.exports.login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BAD_REQUEST("Поле email или password не должны быть пустыми"));
+        return next(
+          new BAD_REQUEST("Поле email или password не должны быть пустыми")
+        );
       } else {
-        next(new UNAUTHORIZED("Передан неккоректный email"));
+        return next(new UNAUTHORIZED("Передан неккоректный email"));
       }
-      next(err);
+      return next(err);
     });
 };
