@@ -15,10 +15,11 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUserinfo = (req, res, next) => {
+  debugger;
   User.findById(req.user._id)
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      return next(err);
+      next(err);
     });
 };
 
@@ -134,7 +135,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return next(new UNAUTHORIZED("Передан неккоректный пароль"));
+          next(new UNAUTHORIZED("Передан неккоректный пароль"));
         }
         const token = jwt.sign({ _id: user._id }, "JWT_SECRET", {
           expiresIn: "7d",
@@ -157,7 +158,8 @@ module.exports.login = (req, res, next) => {
           new BAD_REQUEST("Поле email или password не должны быть пустыми")
         );
       } else {
-        return next(err);
+        return next(new UNAUTHORIZED("Передан неккоректный email"));
       }
+      next(err);
     });
 };
