@@ -47,8 +47,8 @@ app.post(
   createUser
 );
 app.use(auth);
-app.use("/users", require("./routes/users"));
 app.use("/cards", require("./routes/cards"));
+app.use("/users", require("./routes/users"));
 app.use("*", (req, res, next) => {
   return next(new NOT_FOUND("Страница не найдена"));
 });
