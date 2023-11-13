@@ -128,7 +128,6 @@ module.exports.updateUserAvatar = (req, res, next) => {
 };
 
 module.exports.login = (req, res, next) => {
-  // signin
   const { email, password } = req.body;
 
   User.findOne({ email })
@@ -159,8 +158,7 @@ module.exports.login = (req, res, next) => {
           new BAD_REQUEST("Поле email или password не должны быть пустыми")
         );
       } else {
-        return next(new UNAUTHORIZED("Передан неккоректный email"));
+        return next(err);
       }
-      return next(err);
     });
 };
